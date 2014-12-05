@@ -2,9 +2,99 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+    <title>Hungry Hungry People</title>
+    <!--<script type="text/javascript" src="db.js"></script>-->
+    <script>
 
+
+        var letsFood = function (tag) {
+            console.log("someone want's " + tag);
+            var data = {};
+            data[tag.value] = tag.checked;
+            //socket.emit('cuisinechosen', data);
+        };
+
+        var getCuisineChoice = function () {
+            var checkedValues = [];
+            var cuisineELements = document.getElementsByClassName('cuisine');
+            for (var i = 0; cuisineELements[i]; i++){
+                if(cuisineELements[i].checked){
+                    checkedValues.push(cuisineELements[i].value);
+                }
+            }
+            console.log(checkedValues);
+            //emit here
+        };
+
+        var checkLink = function (){
+            var link = document.getElementById('link').value;
+            //check the database for the group order
+        }
+
+    </script>
+        </head>
+<body>
+<div>
+    <div>
+        <h1 onclick="createOrder()" style="background: yellow;">
+            Start a new order
+        </h1>
+    </div>
+
+    <div>
+        <h1 onclick="joinOrder()" style="background: yellow">
+            Join an existing order
+        </h1>
+    </div>
+</div>
+
+<div>
+    <h2>How hungry are you?</h2>
+    <form>
+        <input class="hungry" type="checkbox" name="howhungry" value="Starving" id="c1"> Chinese food
+        <br>
+        <input class="hungry" type="checkbox" name="howhungry" value="Italian" id="c1"> Italian food
+        <br>
+        <input class="hungry" type="checkbox" name="howhungry" value="American" id="c1"> American food
+    </form>
+
+</div>
+
+<div>
+    <h2> What would you like to eat? </h2>
+    <form>
+        <input class="cuisine" type="checkbox" name="cuisines" value="Chinese" id="c1"> Chinese food
+        <br>
+        <input class="cuisine" type="checkbox" name="cuisines" value="Italian" id="c1"> Italian food
+        <br>
+        <input class="cuisine" type="checkbox" name="cuisines" value="American" id="c1"> American food
+        <br>
+        <input class="cuisine" type="checkbox" name="cuisines" value="Thai" id="c1"> Thai food
+    </form>
+    <br>
+    <div class="next" onclick="getCuisineChoice();"> Next </div>
+</div>
+
+<div>
+    <h2> Are you willing to be the point person?</h2>
+    <form>
+        <input class="pointvalue" type="checkbox" name="yes" value="true"> Yes
+        <br>
+        <input class="pointvalue" type="checkbox" name="no" value="false"> No
+    </form>
+    <br>
+    <div class="next" onclick="getCuisineChoice();"> Next </div>
+</div>
+<div>
+    <!--<h2>Enter your order ID</h2>-->
+    <form id="oid">
+        <input type="text" id="orderid" value = "Enter the order ID" size="30" maxlength="70">
+        <br>
+        <input type="button" id="link" onclick="checkLink();">
+    </form>
+</div>
+<div onclick="emitGroupDat();">Create Group</div>
+
+<div onclick="emitNewUserDat();">Join Group</div>
 </body>
 </html>
