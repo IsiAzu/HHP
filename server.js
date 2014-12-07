@@ -8,18 +8,15 @@ var nedb = require('nedb');
 httpServer.listen(8080);
 
 function requestHandler(req, res) {
-
-	var parsedUrl = url.parse(req.url);
-	console.log("The Request is: " + parsedUrl.pathname);
 	
 	// Read index.html	
-	fs.readFile(__dirname + parsedUrl.pathname, 
+	fs.readFile(__dirname + '/index.html',
 		// Callback function for reading
 		function (err, data) {
 			// if there is an error
 			if (err) {
 				res.writeHead(500);
-				return res.end('Error loading ' + parsedUrl.pathname);
+				return res.end('Error loading index.html');
 			}
 			// Otherwise, send the data, the contents of the file
 			res.writeHead(200);
@@ -110,7 +107,8 @@ io.sockets.on('connection',
 			};
 
 			// save userinfo to db
-			userparamsdb.insert(uParms, function(err, user){});
+			userparamsdb.insert(uParms, function(err){
+				if (err) { console.log(err); }});
 
 			console.log('a new user has joined the order group');
 			io.sockets.emit('newuserjoined', uParms);

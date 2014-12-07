@@ -4,7 +4,26 @@
     <meta charset="UTF-8">
     <title>Hungry Hungry People</title>
     <!--<script type="text/javascript" src="db.js"></script>-->
-    <script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+
+        var socket = io.connect('/');
+
+        socket.on('connect', function() {
+            console.log("Connected");
+        });
+
+        // Receive from any event
+        socket.on('chatmessage', function (data) {
+            console.log(data);
+            document.getElementById('messages').innerHTML = "" + data +
+            + "" + document.getElementById('messages').innerHTML;
+        });
+
+        var sendmessage = function(message) {
+            console.log("chatmessage: " + message);
+            socket.emit('chatmessage', message);
+        };
 
 
         var letsFood = function (tag) {
@@ -23,13 +42,28 @@
                 }
             }
             console.log(checkedValues);
+            userData.CuisineChoice = checkedValues;
             //emit here
+        };
+
+        var getHungerChoice = function(){
+
+        };
+
+        var getPriceChoice = function(){
+
         };
 
         var checkLink = function (){
             var link = document.getElementById('link').value;
             //check the database for the group order
-        }
+        };
+
+        var emitGroupDat = function(data){
+            socket.emit('neworderreq', data);
+        };
+
+        var userData = {};
 
     </script>
         </head>
@@ -49,15 +83,35 @@
 </div>
 
 <div>
+    <div>
+
+    </div>
+</div>
+
+<div>
     <h2>How hungry are you?</h2>
     <form>
-        <input class="hungry" type="checkbox" name="howhungry" value="Starving" id="c1"> Chinese food
+        <input class="hungry" type="radio" name="howhungry" value="Starving" > I'm Starving
         <br>
-        <input class="hungry" type="checkbox" name="howhungry" value="Italian" id="c1"> Italian food
+        <input class="hungry" type="radio" name="howhungry" value="Moderate" > I'm Moderately Hungry
         <br>
-        <input class="hungry" type="checkbox" name="howhungry" value="American" id="c1"> American food
+        <input class="hungry" type="radio" name="howhungry" value="I'm Okay" > I'm Okay..
     </form>
+    <br>
+    <div class="next" onclick="getHungerChoice();"> Next </div>
+</div>
 
+<div>
+    <h2>What's your price range?</h2>
+    <form>
+        <input class="range" type="radio" name="howhungry" value="1" > $
+        <br>
+        <input class="range" type="radio" name="howhungry" value="2" > $$
+        <br>
+        <input class="range" type="radio" name="howhungry" value="3" > $$$
+    </form>
+    <br>
+    <div class="next" onclick="getPriceChoice();"> Next </div>
 </div>
 
 <div>
@@ -85,7 +139,8 @@
     <br>
     <div class="next" onclick="getCuisineChoice();"> Next </div>
 </div>
-<div>
+
+<div style="display: none">
     <!--<h2>Enter your order ID</h2>-->
     <form id="oid">
         <input type="text" id="orderid" value = "Enter the order ID" size="30" maxlength="70">
@@ -93,8 +148,10 @@
         <input type="button" id="link" onclick="checkLink();">
     </form>
 </div>
-<div onclick="emitGroupDat();">Create Group</div>
 
+<br>
+<div onclick="emitGroupDat();">Create Group</div>
+<br>
 <div onclick="emitNewUserDat();">Join Group</div>
 </body>
 </html>
