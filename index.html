@@ -7,13 +7,15 @@
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
         var userData = {};
+        var inOrOut = null;
         var socket = io.connect('/');
 
         socket.on('connect', function() {
             console.log("Connected");
+            // check for current users, ready, opted out, append info
         });
 
-        // Receive from any event
+        // Receive user data from any event
         socket.on('neworderreq', function (data) {
             console.log(data);
             displayUserInfo(data);
@@ -99,13 +101,15 @@
             // check the database for the group order
         };
 
+        var
+
         var emitGroupDat = function(gdata){
             console.log(gdata);
             socket.emit('neworderreq', gdata);
 
             // join room
             // reveal chat, log user to chat, show user data
-//            displayUserInfo(gdata);
+            displayUserInfo(gdata);
         };
 
         var displayUserInfo = function(data){
@@ -131,14 +135,87 @@
                 document.getElementById("cuisine_choices").appendChild(usercuisine);
                 document.getElementById("price_range").appendChild(userprice);
                 document.getElementById("hungerRange").appendChild(userhunger);
+            //opt out turn div red
+            //ready turn div green
 
+        };
+
+        function doSearch() {
+            var targetTable = document.getElementById('');
+            var targetTableColCount;
+
+            //Loop through table rows
+            for (var rowIndex = 0; rowIndex < targetTable.rows.length; rowIndex++) {
+                var rowData = '';
+
+                //Get column count from header row
+                if (rowIndex == 0) {
+                    targetTableColCount = targetTable.rows.item(rowIndex).cells.length;
+                    continue; //do not execute further code for header row.
+                }
+
+                //Process data rows. (rowIndex >= 1)
+                for (var colIndex = 0; colIndex < targetTableColCount; colIndex++) rowData += targetTable.rows.item(rowIndex).cells.item(colIndex).textContent;
+
+                //If search term is not found in row data
+                //then hide the row, else show
+                if (rowData.indexOf(userData.UserName) != -1) setStatus();
+
+            }
         }
+
+        var setStatus = function(element){
+            //checking the status of user
+            // might have to first link client ID to user data in db
+            if(inOrOut == false){
+                element.style.background = "red";
+            }else if (inOrOut == true){
+                element.style.background = "green";
+            }else{
+                element.style.background = "white";
+            }
+        };
+
+        var ready = function(){
+            if(inOrOut == null || inOrOut == false){
+                inOrOut = true;
+            }
+            //append user data here
+            //emit data
+
+            var usrP = document.createElement("p");
+            var userTnode = document.createTextNode(userData.UserName);
+            usrP.appendChild(userTnode);
+            document.getElementById("red").appendChild(userTnode);
+            //remove ready button
+
+            socket.emit('ready', userData.UserName);
+
+
+        };
+
+        var optOut = function(){
+            if(inOrOut == null || inOrOut == true){
+                inOrOut = false;
+            }
+
+            var usrP = document.createElement("p");
+            var userTnode = document.createTextNode(userData.UserName);
+            usrP.appendChild(userTnode);
+            document.getElementById("oout").appendChild(userTnode);
+            //remove opt out button
+
+            socket.emit('ready', userData.UserName);
+
+        };
+
 
 
 
     </script>
         </head>
 <body>
+
 <div>
     <div>
         <h1 onclick="createOrder()" style="background: yellow;">
@@ -159,7 +236,7 @@
         <input class="user" type="text" name="user" value="Name" id="name" >
         <br>
         <input class="user" type="text" name="user" value="Phone Number" id="number">
-        </form>
+    </form>
     <br>
     <div class="next" onclick="getUserInfo();"> Next </div>
 </div>
@@ -218,23 +295,31 @@
 
 <div id="groupinfo">
     <!--<h2>Enter your order ID</h2>-->
+    <br>
     <form id="gifo">
         <input type="text" id="groupname" value = "Enter a group name" size="30" maxlength="70">
-        <br>
-        <input type="button" id="gname" onclick="getGroupName();">
     </form>
+    <br>
+    <div class="next" id="link" onclick="getGroupName();"> Next </div>
 </div>
 
+<br>
+<div style="width: 100px; height: 50px; background: cadetblue" onclick="emitGroupDat(userData);">Create Group</div>
 
+<br>
+<div onclick="emitNewUserDat();">Join Group</div>
+
+<br>
 <div style="display: none">
-    <!--<h2>Enter your order ID</h2>-->
-    <form id="oid">
-        <input type="text" id="orderid" value = "Enter the order ID" size="30" maxlength="70">
-        <br>
-        <input type="button" id="oidlink" onclick="checkLink();">
-    </form>
+    <h2>Enter your order ID</h2>
+        <form id="oid">
+            <input type="text" id="orderid" value = "Enter the order ID" size="30" maxlength="70">
+        </form>
+    <br>
+    <div class="next" id="link" onclick="checkLink();"> Next </div>
 </div>
 
+<!--second page-->
 <div>
     <div id="livedata">
         <table id="live_data">
@@ -246,9 +331,33 @@
     </div>
 </div>
 
-<br>
-<div style="width: 100px; height: 50px; background: cadetblue" onclick="emitGroupDat(userData);">Create Group</div>
-<br>
-<div onclick="emitNewUserDat();">Join Group</div>
+<div id="sidebar">
+    <div id="spot">
+        <form id="restaurant">
+            <label>
+                <input type="text" value="restaurant preference">
+            </label>
+        </form>
+    </div>
+
+    <div id="ready" onclick="ready();">
+        <p>Ready</p>
+        <div id="red">
+            <!--append user info here-->
+        </div>
+    </div>
+
+    <div id="opt_out" onclick="optOut();">
+        <p>Opt Out</p>
+        <div id="oout">
+            <!--append user info here-->
+        </div>
+    </div>
+</div>
+
+<!--last page-->
+<div id="notifications">
+</div>
+
 </body>
 </html>

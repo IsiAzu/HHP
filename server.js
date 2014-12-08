@@ -73,7 +73,7 @@ io.sockets.on('connection',
 			//};
 
 			//db.groupordersdb.insert(gOrds, function (err, group) {});
-
+			var userId = -1;
 			var uParms = {
 				//the user's name
 				username: data.username,
@@ -85,9 +85,14 @@ io.sockets.on('connection',
 			};
 
 			//save newgroup to db, save new user to db
-			//console.log(data);
+			console.log(data);
 			db.userparamsdb.insert(uParms, function(err, user) {});
 
+			db.userparamsdb.find({usernumber: data.usernumber}, function(err){
+				if(err){
+					console.log(err);
+				}
+			});
 			socket.broadcast.emit('neworderreq', data);
 		});
 
@@ -99,6 +104,33 @@ io.sockets.on('connection',
 				}
 			});
 		});
+
+		socket.on('ready', function(data){
+			var r;
+			db.userparamsdb.find({username: data}, function (err, result){
+				if (err) { console.log(err); }
+				if (result.count > 0) {
+					r = result[0]._id;
+					console.log(result[0]._id);
+				}
+			});
+
+			//remove user from database
+			db.remove({ _id: r }, {}, function (err, numRemoved) {
+				// Now the fruits array is ['orange', 'pear']
+				socket.broadcast.emit('useroptout', data);
+			});
+		});
+
+		socket.on('optOut', function(data){
+			db.userparamsdb.find({username: data}, function (err, result){
+				if (err) { console.log(err); }
+				if (result.count > 0) {
+					//console.log(result[0]._id);
+				}
+			});
+		});
+
 
 		// if a new user joins an existing group, push their data to the db, emit the info to everyone else
 		socket.on('joinanexorder', function(data){
