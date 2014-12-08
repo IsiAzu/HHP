@@ -16,7 +16,7 @@
         // Receive from any event
         socket.on('neworderreq', function (data) {
             console.log(data);
-
+            displayUserInfo(data);
         });
 
         var sendmessage = function(message) {
@@ -96,13 +96,43 @@
 
         var checkLink = function (){
             var link = document.getElementById('link').value;
-            //check the database for the group order
+            // check the database for the group order
         };
 
         var emitGroupDat = function(gdata){
             console.log(gdata);
             socket.emit('neworderreq', gdata);
+
+            // join room
+            // reveal chat, log user to chat, show user data
+//            displayUserInfo(gdata);
         };
+
+        var displayUserInfo = function(data){
+//            var data = ;
+
+                var usernode = document.createElement("th");
+                var utextnode = document.createTextNode(data.UserName);
+                usernode.appendChild(utextnode);
+
+                var usercuisine = document.createElement("td");
+                var uCtextnode = document.createTextNode(data.Cuisine);
+                usercuisine.appendChild(uCtextnode);
+
+                var userprice = document.createElement("td");
+                var uPtextnode = document.createTextNode(data.Price);
+                userprice.appendChild(uPtextnode);
+
+                var userhunger = document.createElement("td");
+                var uHtextnode = document.createTextNode(data.Hunger);
+                userhunger.appendChild(uHtextnode);
+
+                document.getElementById("username").appendChild(usernode);
+                document.getElementById("cuisine_choices").appendChild(usercuisine);
+                document.getElementById("price_range").appendChild(userprice);
+                document.getElementById("hungerRange").appendChild(userhunger);
+
+        }
 
 
 
@@ -203,6 +233,17 @@
         <br>
         <input type="button" id="oidlink" onclick="checkLink();">
     </form>
+</div>
+
+<div>
+    <div id="livedata">
+        <table id="live_data">
+            <tr id="username"> </tr>
+            <tr id="cuisine_choices"> </tr>
+            <tr id="price_range"></tr>
+            <tr id="hungerRange"></tr>
+        </table>
+    </div>
 </div>
 
 <br>

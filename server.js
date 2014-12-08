@@ -8,7 +8,7 @@ var nedb = require('nedb');
 httpServer.listen(8080);
 
 function requestHandler(req, res) {
-	
+
 	// Read index.html	
 	fs.readFile(__dirname + '/index.html',
 		// Callback function for reading
@@ -32,6 +32,7 @@ var io = require('socket.io').listen(httpServer);
 
 // Empty array to hold clients
 var clients = [];
+
 
 var db = {};
 //this file should hold all the order groups created
@@ -61,35 +62,33 @@ io.sockets.on('connection',
 		socket.on('neworderreq', function(data){
 			//var id = data.id;
 			//var gOrds = {
-			//	// the name of the group
-			//	//groupname: data.groupname,
+			//	//the name of the group
+			//	groupname: data.groupname,
 			//	//_id: id,
-			//	// an array of food choices available for other users to pick
-			//	//groupcuisine: data.group.cuisine,
+			//	//an array of food choices available for other users to pick
+			//	groupcuisine: data.group.cuisine,
             //
 			//	//group was created by
-			//	//groupcreated: data.username
+			//	groupcreated: data.username
 			//};
 
 			//db.groupordersdb.insert(gOrds, function (err, group) {});
 
-			//var uParms = {
-			//	//the user's name
-			//	username: data.username,
-            //
-			//	//the user's food choices
-			//	usercuisine: data.cuisine,
-            //
-			//	//the group this user is attached to
-			//	//grouporderID: db.find({})
-			//	//groupordersdb.id
-			//};
+			var uParms = {
+				//the user's name
+				username: data.username,
+				usernumber: data.usernumber,
+				//the user's food choices
+				cuisine: data.cuisine,
+				//the group this user is attached to
+				group: data.groupname
+			};
 
 			//save newgroup to db, save new user to db
-			console.log(data);
-			db.userparamsdb.insert({name: data.UserName, cuisine: data.Cuisine}, function(err, user) {});
-			socket.broadcast.emit('neworderreq', data);
+			//console.log(data);
+			db.userparamsdb.insert(uParms, function(err, user) {});
 
+			socket.broadcast.emit('neworderreq', data);
 		});
 
 		socket.on('findDb', function(){
