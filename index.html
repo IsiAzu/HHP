@@ -6,7 +6,7 @@
     <!--<script type="text/javascript" src="db.js"></script>-->
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript">
-
+        var userData = {};
         var socket = io.connect('/');
 
         socket.on('connect', function() {
@@ -14,10 +14,9 @@
         });
 
         // Receive from any event
-        socket.on('chatmessage', function (data) {
+        socket.on('neworderreq', function (data) {
             console.log(data);
-            document.getElementById('messages').innerHTML = "" + data +
-            + "" + document.getElementById('messages').innerHTML;
+
         });
 
         var sendmessage = function(message) {
@@ -42,16 +41,57 @@
                 }
             }
             console.log(checkedValues);
-            userData.CuisineChoice = checkedValues;
+            userData.Cuisine = checkedValues;
             //emit here
         };
 
         var getHungerChoice = function(){
+            var radios = document.getElementsByName('howhungry');
 
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    userData.Hunger = radios[i].value;
+                    // only one radio can be logically checked, don't check the rest
+                    break;
+                }
+            }
         };
 
         var getPriceChoice = function(){
+            var radios = document.getElementsByName('price');
 
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    userData.Price = radios[i].value;
+                    // only one radio can be logically checked, don't check the rest
+                    break;
+                }
+            }
+
+        };
+
+        var getPointChoice = function(){
+            var radios = document.getElementsByName('point');
+
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    userData.Point = radios[i].value;
+                    // only one radio can be logically checked, don't check the rest
+                    break;
+                }
+            }
+        };
+
+        var getUserInfo = function () {
+            var name = document.getElementById('name').value;
+            var number = document.getElementById('number').value;
+            userData.UserName = name;
+            userData.UserNumber = number;
+        };
+
+        var getGroupName = function () {
+            var g = document.getElementById('groupname').value;
+            userData.groupname = g;
         };
 
         var checkLink = function (){
@@ -59,11 +99,12 @@
             //check the database for the group order
         };
 
-        var emitGroupDat = function(data){
-            socket.emit('neworderreq', data);
+        var emitGroupDat = function(gdata){
+            console.log(gdata);
+            socket.emit('neworderreq', gdata);
         };
 
-        var userData = {};
+
 
     </script>
         </head>
@@ -83,9 +124,14 @@
 </div>
 
 <div>
-    <div>
-
-    </div>
+    <h2>Sign Up</h2>
+    <form>
+        <input class="user" type="text" name="user" value="Name" id="name" >
+        <br>
+        <input class="user" type="text" name="user" value="Phone Number" id="number">
+        </form>
+    <br>
+    <div class="next" onclick="getUserInfo();"> Next </div>
 </div>
 
 <div>
@@ -104,11 +150,11 @@
 <div>
     <h2>What's your price range?</h2>
     <form>
-        <input class="range" type="radio" name="howhungry" value="1" > $
+        <input class="range" type="radio" name="price" value="1" > $
         <br>
-        <input class="range" type="radio" name="howhungry" value="2" > $$
+        <input class="range" type="radio" name="price" value="2" > $$
         <br>
-        <input class="range" type="radio" name="howhungry" value="3" > $$$
+        <input class="range" type="radio" name="price" value="3" > $$$
     </form>
     <br>
     <div class="next" onclick="getPriceChoice();"> Next </div>
@@ -117,13 +163,13 @@
 <div>
     <h2> What would you like to eat? </h2>
     <form>
-        <input class="cuisine" type="checkbox" name="cuisines" value="Chinese" id="c1"> Chinese food
+        <input class="cuisine" type="checkbox" name="cuisines" value="Chinese"> Chinese food
         <br>
-        <input class="cuisine" type="checkbox" name="cuisines" value="Italian" id="c1"> Italian food
+        <input class="cuisine" type="checkbox" name="cuisines" value="Italian"> Italian food
         <br>
-        <input class="cuisine" type="checkbox" name="cuisines" value="American" id="c1"> American food
+        <input class="cuisine" type="checkbox" name="cuisines" value="American"> American food
         <br>
-        <input class="cuisine" type="checkbox" name="cuisines" value="Thai" id="c1"> Thai food
+        <input class="cuisine" type="checkbox" name="cuisines" value="Thai"> Thai food
     </form>
     <br>
     <div class="next" onclick="getCuisineChoice();"> Next </div>
@@ -132,25 +178,35 @@
 <div>
     <h2> Are you willing to be the point person?</h2>
     <form>
-        <input class="pointvalue" type="checkbox" name="yes" value="true"> Yes
+        <input class="pointvalue" type="radio" name="point" value="true"> Yes
         <br>
-        <input class="pointvalue" type="checkbox" name="no" value="false"> No
+        <input class="pointvalue" type="radio" name="point" value="false"> No
     </form>
     <br>
-    <div class="next" onclick="getCuisineChoice();"> Next </div>
+    <div class="next" onclick="getPointChoice();"> Next </div>
 </div>
+
+<div id="groupinfo">
+    <!--<h2>Enter your order ID</h2>-->
+    <form id="gifo">
+        <input type="text" id="groupname" value = "Enter a group name" size="30" maxlength="70">
+        <br>
+        <input type="button" id="gname" onclick="getGroupName();">
+    </form>
+</div>
+
 
 <div style="display: none">
     <!--<h2>Enter your order ID</h2>-->
     <form id="oid">
         <input type="text" id="orderid" value = "Enter the order ID" size="30" maxlength="70">
         <br>
-        <input type="button" id="link" onclick="checkLink();">
+        <input type="button" id="oidlink" onclick="checkLink();">
     </form>
 </div>
 
 <br>
-<div onclick="emitGroupDat();">Create Group</div>
+<div style="width: 100px; height: 50px; background: cadetblue" onclick="emitGroupDat(userData);">Create Group</div>
 <br>
 <div onclick="emitNewUserDat();">Join Group</div>
 </body>

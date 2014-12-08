@@ -33,19 +33,19 @@ var io = require('socket.io').listen(httpServer);
 // Empty array to hold clients
 var clients = [];
 
+var db = {};
 //this file should hold all the order groups created
-var groupordersdb = new nedb({
+db.groupordersdb = new nedb({
 	filename: 'groups.db',
 	autoload: true
 });
 
 //this file should store all info on the users order params in each groupdb
-var userparamsdb = new nedb({
+db.userparamsdb = new nedb({
 	filename: 'userparams.db',
 	autoload: true
 });
-
-
+ db.userparamsdb.loadDatabase();
 
 // Register a callback function to run when we have an individual connection
 // This is run for each individual user that connects
@@ -59,38 +59,46 @@ io.sockets.on('connection',
 		// when a request for a new order group is created, add a new group to groups database. als add a new user to users database
 
 		socket.on('neworderreq', function(data){
-			var id = data.id;
-			var gOrds = {
-				// the name of the group
-				groupname: data.group.groupname,
-				_id: id,
-				// an array of food choices available for other users to pick
-				//groupcuisine: data.group.cuisine,
+			//var id = data.id;
+			//var gOrds = {
+			//	// the name of the group
+			//	//groupname: data.groupname,
+			//	//_id: id,
+			//	// an array of food choices available for other users to pick
+			//	//groupcuisine: data.group.cuisine,
+            //
+			//	//group was created by
+			//	//groupcreated: data.username
+			//};
 
-				//group was created by
-				groupcreated: data.username
-			};
+			//db.groupordersdb.insert(gOrds, function (err, group) {});
 
-			groupordersdb.insert(gOrds, function (err, group) {});
-
-			var uParms = {
-				//the user's name
-				username: data.username,
-
-				//the user's food choices
-				usercuisine: data.cuisine,
-
-				//the group this user is attached to
-				grouporderID: db.find({})
-				//groupordersdb.id
-			};
+			//var uParms = {
+			//	//the user's name
+			//	username: data.username,
+            //
+			//	//the user's food choices
+			//	usercuisine: data.cuisine,
+            //
+			//	//the group this user is attached to
+			//	//grouporderID: db.find({})
+			//	//groupordersdb.id
+			//};
 
 			//save newgroup to db, save new user to db
+			console.log(data);
+			db.userparamsdb.insert({name: data.UserName, cuisine: data.Cuisine}, function(err, user) {});
+			socket.broadcast.emit('neworderreq', data);
 
-			userparamsdb.insert(uParms, function(err, user) {});
+		});
 
-
-			io.sockets.emit('newgroupcreated', gOrds, uParms);
+		socket.on('findDb', function(){
+			db.userparamsdb.find({}, function (err, result){
+				if (err) { console.log(err); }
+				if (result.count > 0) {
+					console.log(result[0]._id);
+				}
+			});
 		});
 
 		// if a new user joins an existing group, push their data to the db, emit the info to everyone else
