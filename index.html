@@ -18,7 +18,13 @@
         // Receive user data from any event
         socket.on('neworderreq', function (data) {
             console.log(data);
+            // emit user dat
             displayUserInfo(data);
+        });
+
+        socket.on('useroptout', function(data){
+            // remove this user's data from list
+            // or ad user's info to opt out list
         });
 
         var sendmessage = function(message) {
@@ -101,7 +107,6 @@
             // check the database for the group order
         };
 
-        var
 
         var emitGroupDat = function(gdata){
             console.log(gdata);
@@ -300,7 +305,7 @@
         <input type="text" id="groupname" value = "Enter a group name" size="30" maxlength="70">
     </form>
     <br>
-    <div class="next" id="link" onclick="getGroupName();"> Next </div>
+    <div class="next" id="groupnamelink" onclick="getGroupName();"> Next </div>
 </div>
 
 <br>
