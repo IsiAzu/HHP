@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Hungry Hungry People</title>
+    <link rel="stylesheet" href="style.css">
+    <!--<script type="text/javascript" src="db.js"></script>-->
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <!--<script>-->
+        <!--var socket = io.connect('/');-->
+    <!--</script>-->
+
+        </head>
+<body>
+
+<div class="home page">
+    <div class = "hp1">
+        <h1 id="begin" style="background: yellow;">
+            Start a new order
+        </h1>
+    </div>
+
+    <!--<div class = "hp2">-->
+        <!--<h1 onclick="joinOrder()" style="background: yellow; display: inline-block">-->
+            <!--Join an existing order-->
+        <!--</h1>-->
+    <!--</div>-->
+</div>
+
+<div class="login page">
+    <form>
+        <div id="nom">
+        <input class="login page" type="text" name="user" value="Name" id="name" >
+            <div class="next" id="next1"> Next </div>
+            </div>
+        <br>
+        <div id="num">
+        <input class="login page" type="text" name="user" value="Phone Number" id="number">
+            <div class="next" id="next2"> Next </div>
+        </div>
+    </form>
+    <br>
+
+</div>
+
+<div class="ONE page">
+    <h2>How hungry are you?</h2>
+    <form>
+        <label>
+            <input class="hungry" type="radio" name="howhungry" value="Starving">
+            I'm Starving
+        </label>
+        <br>
+        <label>
+            <input class="hungry" type="radio" name="howhungry" value="Moderate">
+        </label> I'm Moderately Hungry
+        <br>
+        <label>
+            <input class="hungry" type="radio" name="howhungry" value="I'm Okay">
+        </label> I'm Okay..
+    </form>
+    <br>
+    <div id="nextONE" class="next"> Next </div>
+</div>
+
+<div class="TWO page">
+    <h2>What's your price range?</h2>
+    <form>
+        <input class="range" type="radio" name="price" value="1" > $
+        <br>
+        <input class="range" type="radio" name="price" value="2" > $$
+        <br>
+        <input class="range" type="radio" name="price" value="3" > $$$
+    </form>
+    <br>
+    <div id="nextTWO" class="next"> Next </div>
+</div>
+
+<div class="THREE page">
+    <h2> What would you like to eat? </h2>
+    <form>
+        <input class="cuisine" type="checkbox" name="cuisines" value="Chinese"> Chinese food
+        <br>
+        <input class="cuisine" type="checkbox" name="cuisines" value="Italian"> Italian food
+        <br>
+        <input class="cuisine" type="checkbox" name="cuisines" value="American"> American food
+        <br>
+        <input class="cuisine" type="checkbox" name="cuisines" value="Thai"> Thai food
+    </form>
+    <br>
+    <div id="nextTHREE" class="next"> Next </div>
+</div>
+
+<div class="FOUR page">
+    <h2> Are you willing to be the point person?</h2>
+    <form>
+        <input class="pointvalue" type="radio" name="point" value="true"> Yes
+        <br>
+        <input class="pointvalue" type="radio" name="point" value="false"> No
+    </form>
+    <br>
+    <div id="nextFOUR" class="next"> Next </div>
+</div>
+
+<!--<div id="groupinfo" style="display: none">-->
+    <!--&lt;!&ndash;<h2>Enter your order ID</h2>&ndash;&gt;-->
+    <!--<br>-->
+    <!--<form id="gifo">-->
+        <!--<input type="text" id="groupname" value = "Enter a group name" size="30" maxlength="70">-->
+    <!--</form>-->
+    <!--<br>-->
+    <!--<div class="next" id="groupnamelink" onclick="getGroupName();"> Next </div>-->
+<!--</div>-->
+
+<div class="create page" style="width: 100px; height: 50px; background: cadetblue">Create Group</div>
+
+<!--<div class="join page" onclick="emitNewUserDat();">Join Group</div>-->
+
+<div style="display: none">
+    <h2>Enter your order ID</h2>
+        <form id="oid">
+            <input type="text" id="orderid" value = "Enter the order ID" size="30" maxlength="70">
+        </form>
+    <br>
+    <div class="next" id="link" onclick="checkLink();"> Next </div>
+</div>
+
+<!--second page-->
+<div style="display: none" id="page_2">
+    <div id="top_bar">
+    <!-- online users in group -->
+        <div id="livedata">
+        <table id="live_data">
+            <tr id="username"> </tr>
+            <tr id="cuisine_choices"> </tr>
+            <tr id="price_range"></tr>
+            <tr id="hungerRange"></tr>
+        </table>
+    </div>
+</div>
+    <!--chatroom-->
+    <div id="chat_area">
+        <ul class="pages">
+            <li class="chat page">
+                <div class="chatArea">
+                    <ul class="messages"></ul>
+                </div>
+                <input class="inputMessage" placeholder="Type here..."/>
+            </li>
+            <!--<li class="login page">-->
+                <!--<div class="form">-->
+                    <!--<h3 class="title">What's your nickname?</h3>-->
+                    <!--<input class="usernameInput" type="text" maxlength="14" />-->
+                <!--</div>-->
+            <!--</li>-->
+        </ul>
+    </div>
+<div id="sidebar">
+    <div id="spot">
+        <form id="restaurant">
+            <label>
+                <input class="restaurantChoice" type="text" value="restaurant preference">
+            </label>
+        </form>
+    </div>
+
+
+
+<!--optin/out button + users-->
+    <div id="ready" onclick="ready();">
+        <p>Ready</p>
+        <div id="red">
+            <!--append user info here-->
+        </div>
+    </div>
+
+    <div id="opt_out" onclick="optOut();">
+        <p>Opt Out</p>
+        <div id="oout">
+            <!--append user info here-->
+        </div>
+    </div>
+</div>
+</div>
+
+<!--last page-->
+<div id="page_3">
+</div>
+
+</body>
+</html>

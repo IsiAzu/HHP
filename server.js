@@ -1,34 +1,22 @@
-// HTTP Portion
-var http = require('http');
-var fs = require('fs'); // Using the filesystem module
-var httpServer = http.createServer(requestHandler);
-var url = require('url');
+// expres server
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var port = process.env.PORT || 3000;
 var nedb = require('nedb');
 
-httpServer.listen(8080);
+server.listen(port, function(){
+	console.log('Server listening at port', port);
+});
 
-function requestHandler(req, res) {
+app.use(express.static(__dirname +'/public'));
 
-	// Read index.html	
-	fs.readFile(__dirname + '/index.html',
-		// Callback function for reading
-		function (err, data) {
-			// if there is an error
-			if (err) {
-				res.writeHead(500);
-				return res.end('Error loading index.html');
-			}
-			// Otherwise, send the data, the contents of the file
-			res.writeHead(200);
-			res.end(data);
-  		}
-  	);
-  	
-}
 
-// WebSocket Portion
-// WebSockets work with the HTTP server
-var io = require('socket.io').listen(httpServer);
+var usernames = {};
+var numUsers = 0;
+
+
 
 // Empty array to hold clients
 var clients = [];
@@ -53,11 +41,49 @@ db.userparamsdb = new nedb({
 io.sockets.on('connection', 
 	// We are given a websocket object in our function
 	function (socket) {
+	var addedUser=false;
 
 		console.log("connected");
 
 		
 		// when a request for a new order group is created, add a new group to groups database. als add a new user to users database
+socket.on('new message', function(data){
+	socket.broadcast.emit('new message', { username: socket.username, message:data});
+
+});
+
+		socket.on('add user', function (data) {
+			// we store the username in the socket session for this client
+			socket.username = data.UserName;
+			// add the client's username to the global list
+			usernames[data.UserName] = data.UserName;
+			++numUsers;
+			addedUser = true;
+			socket.emit('login', {
+				numUsers: numUsers
+			});
+			// echo globally (all clients) that a person has connected
+			socket.broadcast.emit('user joined', {
+				username: socket.username,
+				numUsers: numUsers
+			});
+		});
+
+		// when the client emits 'typing', we broadcast it to others
+		socket.on('typing', function () {
+			socket.broadcast.emit('typing', {
+				username: socket.username
+			});
+		});
+
+		// when the client emits 'stop typing', we broadcast it to others
+		socket.on('stop typing', function () {
+			socket.broadcast.emit('stop typing', {
+				username: socket.username
+			});
+		});
+
+		//socket.on('ad '{});
 
 		socket.on('neworderreq', function(data){
 			//var id = data.id;
@@ -74,6 +100,7 @@ io.sockets.on('connection',
 
 			//db.groupordersdb.insert(gOrds, function (err, group) {});
 			var userId = -1;
+
 			var uParms = {
 				//the user's name
 				username: data.username,
@@ -93,7 +120,7 @@ io.sockets.on('connection',
 					console.log(err);
 				}
 			});
-			socket.broadcast.emit('neworderreq', data);
+			//socket.broadcast.emit('neworderreq', data);
 		});
 
 		socket.on('findDb', function(){
@@ -158,7 +185,16 @@ io.sockets.on('connection',
 			console.log("Client has disconnected " + socket.id);
 			clients.splice(clients.indexOf(socket.id), 1);
 			console.log(clients);
+			if (addedUser) {
+				delete usernames[socket.username];
+				--numUsers;
+
+				// echo globally that this client has left
+				socket.broadcast.emit('user left', {
+					username: socket.username,
+					numUsers: numUsers
+				});
+			}
 		});
-	}
-);
+	});
 
